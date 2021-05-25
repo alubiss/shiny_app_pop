@@ -29,6 +29,7 @@ library(spData)   # loads the world dataset
 library(sf)
 library(shinydashboard)
 library(shinyWidgets)
+library(kableExtra)
 world$`lifeExp` = round(world$`lifeExp`, 2)  
 world$`gdpPercap` = round(world$`gdpPercap`)
 world$`pop` = round(world$`pop`)
@@ -42,7 +43,7 @@ world = world %>%
 
 # 1. Life expectancy
 
-```{r, fig.align = 'center'}
+```{r, fig.align = 'center', fig.cap = 'Figure 1. Life expectancy'}
 labels <- sprintf(
             "<strong>%s</strong><br/>%g",
             world$name_long, world$lifeExp
@@ -73,9 +74,22 @@ labels <- sprintf(
             addLegend(pal = pal, values = ~lifeExp, opacity = 0.7, position = "bottomright")
 ```
 
+```{r}
+dane= world %>%
+            filter(
+                continent %in% params$continents,
+                lifeExp > params$life[1],
+                lifeExp < params$life[2]
+            ) %>%
+            select(name_long, lifeExp) %>%
+            arrange(desc(lifeExp))
+kable(dane, align = "cc", caption = "Table 1. Life expectancy") %>% kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+
 # 2. GDP
 
-```{r, fig.align = 'center'}
+```{r, fig.align = 'center', fig.cap = 'Figure 2. GDP'}
 labels <- sprintf(
             "<strong>%s</strong><br/>%g US dollars per capita",
             world$name_long, world$gdpPercap
@@ -106,6 +120,18 @@ labels <- sprintf(
             addLegend(pal = pal, values = ~gdpPercap, opacity = 0.7, position = "bottomright")
 ```
 
+```{r}
+dane= world %>%
+            filter(
+                continent %in% params$continents_gdp,
+                gdpPercap > params$gdp[1],
+                gdpPercap < params$gdp[2]
+            ) %>%
+            select(name_long, gdpPercap, pop) %>%
+            arrange(desc(gdpPercap))
+kable(dane, align = "cc", caption = "Table 2. GDP") %>% kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
 # 3. Population
 
 #### {.tabset}
@@ -113,7 +139,7 @@ labels <- sprintf(
 
 dla `r params$pop`
 
-```{r, fig.align = 'center'}
+```{r, fig.align = 'center', fig.cap = 'Figure 3. Population'}
 world$pop = world$pop / 1000000 # To present population in milions on map
 world$pop = round(world$pop, 3)
         
@@ -150,9 +176,21 @@ world$pop = round(world$pop, 3)
             addLegend(pal = pal, values = ~pop, opacity = 0.7, position = "bottomright", title = 'Population in millions')
 ```
 
+```{r}
+dane= world %>%
+            filter(
+                continent %in% params$continents_pop,
+                pop > params$pop[1],
+                pop < params$pop[2]
+            ) %>%
+            select(name_long, pop, gdpPercap) %>%
+            arrange(desc(pop))
+kable(dane, align = "cc", caption = "Table 3. Population") %>% kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
 ##### Population Growth
 
-```{r, fig.align = 'center'}
+```{r, fig.align = 'center', fig.cap = 'Figure 4. Population Growth'}
 
         
 ```
