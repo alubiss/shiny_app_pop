@@ -1,0 +1,161 @@
+---
+title: "Report"
+params:
+  life: NA
+  continents: NA
+  gdp: NA
+  continents_gdp: NA
+  continents_pop: NA
+  pop: NA
+  country: NA
+  year: NA
+output:
+  html_document:
+    code_folding: "hide"
+    #self_contained: true
+    theme: spacelab
+    highlight: tango
+    toc: true
+    toc_float: false
+---
+```{r include = FALSE}
+knitr::opts_chunk$set(echo=FALSE,error = F, warning = F, message = F)
+```
+```{r}
+library(dplyr)
+library(shiny)    # for shiny apps
+library(leaflet)  # renderLeaflet function
+library(spData)   # loads the world dataset 
+library(sf)
+library(shinydashboard)
+library(shinyWidgets)
+world$`lifeExp` = round(world$`lifeExp`, 2)  
+world$`gdpPercap` = round(world$`gdpPercap`)
+world$`pop` = round(world$`pop`)
+
+world = world %>% 
+    left_join(worldbank_df, by = "iso_a2") %>%
+    select(name_long, pop, gdpPercap, pop_growth, continent, lifeExp)
+```
+
+*Report generated on  `r format(Sys.Date(), '%d-%m-%Y')`*
+
+# 1. Life expectancy
+
+```{r, fig.align = 'center'}
+labels <- sprintf(
+            "<strong>%s</strong><br/>%g",
+            world$name_long, world$lifeExp
+        ) %>% lapply(htmltools::HTML)
+
+        bins <- c(40, 50, 60, 70, 75, 80, Inf)
+        pal <- colorBin("Blues", domain = world$lifeExp, bins = bins)
+
+        lifeExp_map <- leaflet(world) %>%
+            addProviderTiles("Stamen.Toner")
+
+        lifeExp_map %>%
+            addPolygons(
+                fillColor = ~pal(lifeExp),
+                weight = 2,
+                opacity = 3,
+                color = "white",
+                dashArray = "1",
+                fillOpacity = 1.2,
+                highlight = highlightOptions(
+                    weight = 2,
+                    color = "blue",
+                    fillOpacity = 0.7),
+                label = labels,
+                labelOptions = labelOptions(
+                    style = list("font-weight" = "normal", padding = "2px 6px"),
+                    textsize = "10px")) %>%
+            addLegend(pal = pal, values = ~lifeExp, opacity = 0.7, position = "bottomright")
+```
+
+# 2. GDP
+
+```{r, fig.align = 'center'}
+labels <- sprintf(
+            "<strong>%s</strong><br/>%g US dollars per capita",
+            world$name_long, world$gdpPercap
+        ) %>% lapply(htmltools::HTML)
+
+        bins <- c(0, 1000, 5000, 10000, 25000, 45000, Inf)
+        pal <- colorBin("Greens", domain = world$gdpPercap, bins = bins)
+
+        gdp_map <- leaflet(world) %>%
+            addProviderTiles("Thunderforest.Pioneer")
+
+        gdp_map %>%
+            addPolygons(
+                fillColor = ~pal(gdpPercap),
+                weight = 2,
+                opacity = 3,
+                color = "white",
+                dashArray = "1",
+                fillOpacity = 1.2,
+                highlight = highlightOptions(
+                    weight = 2,
+                    color = "blue",
+                    fillOpacity = 0.7),
+                label = labels,
+                labelOptions = labelOptions(
+                    style = list("font-weight" = "normal", padding = "2px 6px"),
+                    textsize = "10px")) %>%
+            addLegend(pal = pal, values = ~gdpPercap, opacity = 0.7, position = "bottomright")
+```
+
+# 3. Population
+
+#### {.tabset}
+##### pop
+
+dla `r params$pop`
+
+```{r, fig.align = 'center'}
+world$pop = world$pop / 1000000 # To present population in milions on map
+world$pop = round(world$pop, 3)
+        
+        # setting map options
+        
+        labels <- sprintf(
+            "<strong>%s</strong><br/>%g milion people",
+            world$name_long, world$pop
+        ) %>% lapply(htmltools::HTML)
+        bins <- c(0, 1, 10, 25, 50, 200, Inf)
+        pal <- colorBin("YlOrRd", domain = world$pop, bins = bins)
+        
+        # plotting map
+        
+        gdp_map <- leaflet(world) %>%
+            addProviderTiles("Stamen.Toner")
+        
+        gdp_map %>% 
+            addPolygons(
+                fillColor = ~pal(pop),
+                weight = 2,
+                opacity = 3,
+                color = "white",
+                dashArray = "1",
+                fillOpacity = 1.2,
+                highlight = highlightOptions(
+                    weight = 2,
+                    color = "blue",
+                    fillOpacity = 0.7),
+                label = labels,
+                labelOptions = labelOptions(
+                    style = list("font-weight" = "normal", padding = "2px 10px"),
+                    textsize = "10px")) %>%
+            addLegend(pal = pal, values = ~pop, opacity = 0.7, position = "bottomright", title = 'Population in millions')
+```
+
+##### Population Growth
+
+```{r, fig.align = 'center'}
+
+        
+```
+
+
+

@@ -1,0 +1,46 @@
+---
+author: "Aleksandra Lubicka, Aleksander Partyga"
+title: "main"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    code_folding: "hide"
+---
+
+# **World Explorer Application**
+
+![](https://txtlab.org/wp-content/uploads/2019/09/world.jpg)
+------------------------------------------------------------------------------------
+Source: ["txtlab.org"](https://txtlab.org/2019/09/does-size-matter-measuring-worlding/)
+
+## 1. Introduction
+
+A project prepared as part of the course ["Advanced Programming in R"](https://usosweb.wne.uw.edu.pl/kontroler.php?_action=katalog2/przedmioty/pokazPrzedmiot&prz_kod=2400-DS1APR).
+
+The data used for visualization are from the **spData** package.
+
+## 2. Project goals
+
+### **The goals of assessment:**
+
+*- preparing a web application,*
+
+*- advanced data processing with dplyr, dtplyr, tidyr,*
+
+*- creating advanced functions,*
+
+*- using R Markdown.*
+
+## 3. Description of the application
+
+Based on the dataset, an application has been prepared that shows the distribution of life expectancy, GDP 
+and population in the world. The application consists of four subpages, where we can choose the parameters 
+for which we want to display the data and the title page which contains a description of the application. 
+Additionally, from each subpage we can generate a report which is prepared in R Markdown. 
+The dataset is edited using tidyverse and dplyr library. The set of functions used in the project is in a 
+separate file.
+
+
+
