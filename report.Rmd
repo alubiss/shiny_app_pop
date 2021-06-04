@@ -48,11 +48,12 @@ world = world %>%
 
 # 1. Life expectancy
 
-In Figure 1, we can see the average life expectancy in the world. 
+In Figure 1, we can see the average life expectancy in the world.
+
 Table 1 displays the average Life Expectancy values for the selected range *`r params$life`*
 
 
-```{r, fig.align = 'center', fig.cap = 'Figure 1. Life expectancy'}
+```{r, fig.align = 'center', fig.cap = 'Figure 1. Life expectancy', fig.topcaption=TRUE}
 labels <- sprintf(
             "<strong>%s</strong><br/>%g",
             world$name_long, world$lifeExp
@@ -99,9 +100,10 @@ kable(dane, align = "cc", caption = "Table 1. Life expectancy") %>% kable_stylin
 # 2. GDP
 
 In Figure 2, we can see the GDP values for individual countries.
+
 Table 2 displays GDP for the selected range *`r params$gdp`*
 
-```{r, fig.align = 'center', fig.cap = 'Figure 2. GDP'}
+```{r, fig.align = 'center', fig.cap = 'Figure 2. GDP', fig.topcaption=TRUE}
 labels <- sprintf(
             "<strong>%s</strong><br/>%g US dollars per capita",
             world$name_long, world$gdpPercap
@@ -151,7 +153,7 @@ kable(dane, align = "cc", caption = "Table 2. GDP") %>% kable_styling(bootstrap_
 
 In Figure 3, we can see the population for each country.
 
-```{r, fig.align = 'center', fig.cap = 'Figure 3. Population'}
+```{r, fig.align = 'center', fig.cap = 'Figure 3. Population', fig.topcaption=TRUE}
 world$pop = world$pop / 1000000 # To present population in milions on map
 world$pop = round(world$pop, 3)
         
@@ -207,9 +209,9 @@ future_pop <- function(country, year) {
 a = future_pop(params$country, params$year)
 ```
 
-*`r print(a)`*
+*`r a`*
 
-```{r, fig.align = 'center', fig.cap = 'Figure 4. Population Growth'}
+```{r, fig.align = 'center', fig.cap = 'Figure 4. Population Growth', fig.pos='center', fig.topcaption=TRUE}
 library(ggplot2)
 library(dplyr)
 
@@ -221,18 +223,24 @@ ggplot(data = thismap, aes(long, lat, fill = fill, group=group))+
   scale_fill_identity()
         
 ```
-Information about selected country:
+**Information about selected country:**
 
 ```{r}
 library(WikipediR)
 library(rvest)
-wp_content <- page_content("en","wikipedia", page_name = params$country)
-a= read_html(wp_content$parse$text$`*`) %>% html_node('body div') %>% html_text()
-a =gsub('\n', '', a)
-a = a %>% as.character()
+
+info_from_wiki <- function(country) {
+  url <- paste('https://www.worldometers.info/world-population/',tolower(country),'-population/', sep='')
+  wiki_pop <- url
+  wiki_pop <- read_html(wiki_pop) 
+  global_pop <- wiki_pop %>%
+    html_nodes(xpath = '//*[@class="col-md-8 country-pop-description"]') %>% html_text()
+  return(global_pop)
+  }
 ```
 
-`r substr(a, 1, 100)`
+`r info_from_wiki(params$country)`
+
 ------------------------------------------------------------------------------------
-Source: ["wikipedia.org"](https://www.wikipedia.org/)
+Source: ["www.worldometers.info"](https://www.worldometers.info/world-population)
 
