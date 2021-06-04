@@ -1,14 +1,19 @@
 ---
 title: "Report"
 params:
+  # LE
   life: NA
   continents: NA
+  # GDP
   gdp: NA
   continents_gdp: NA
+  # POP
   continents_pop: NA
   pop: NA
-  country: NA
+  # Population Growth
+  country: Na
   year: NA
+  future_pop: NA
 output:
   html_document:
     code_folding: "hide"
@@ -39,9 +44,13 @@ world = world %>%
     select(name_long, pop, gdpPercap, pop_growth, continent, lifeExp)
 ```
 
-*Report generated on  `r format(Sys.Date(), '%d-%m-%Y')`*
+**Report generated on  `r format(Sys.Date(), '%d-%m-%Y')`**
 
 # 1. Life expectancy
+
+In Figure 1, we can see the average life expectancy in the world. 
+Table 1 displays the average Life Expectancy values for the selected range *`r params$life`*
+
 
 ```{r, fig.align = 'center', fig.cap = 'Figure 1. Life expectancy'}
 labels <- sprintf(
@@ -88,6 +97,9 @@ kable(dane, align = "cc", caption = "Table 1. Life expectancy") %>% kable_stylin
 
 
 # 2. GDP
+
+In Figure 2, we can see the GDP values for individual countries.
+Table 2 displays GDP for the selected range *`r params$gdp`*
 
 ```{r, fig.align = 'center', fig.cap = 'Figure 2. GDP'}
 labels <- sprintf(
@@ -137,7 +149,7 @@ kable(dane, align = "cc", caption = "Table 2. GDP") %>% kable_styling(bootstrap_
 #### {.tabset}
 ##### pop
 
-dla `r params$pop`
+In Figure 3, we can see the population for each country.
 
 ```{r, fig.align = 'center', fig.cap = 'Figure 3. Population'}
 world$pop = world$pop / 1000000 # To present population in milions on map
@@ -176,24 +188,51 @@ world$pop = round(world$pop, 3)
             addLegend(pal = pal, values = ~pop, opacity = 0.7, position = "bottomright", title = 'Population in millions')
 ```
 
-```{r}
-dane= world %>%
-            filter(
-                continent %in% params$continents_pop,
-                pop > params$pop[1],
-                pop < params$pop[2]
-            ) %>%
-            select(name_long, pop, gdpPercap) %>%
-            arrange(desc(pop))
-kable(dane, align = "cc", caption = "Table 3. Population") %>% kable_styling(bootstrap_options = c("striped", "hover"))
-```
-
 ##### Population Growth
 
-```{r, fig.align = 'center', fig.cap = 'Figure 4. Population Growth'}
-
-        
+```{r}
+future_pop <- function(country, year) {
+    
+    if (year <= 2021)
+        "The value of year inputted must be greater than current year!"
+    else if (country %in% world$name_long == F)
+        "The name of the country not found!"
+    else {
+        pop = world$pop[world$name_long == country][1]
+        pop_growth = world$pop_growth[world$name_long == country][1]
+        final_pop = pop * compoundInterest((pop_growth/100), (year-2021))
+        cat(country, "would have", final_pop, "people if it's going to grow at the current rate of", round(pop_growth, 2), "% per year")
+    }
+}
+a = future_pop(params$country, params$year)
 ```
 
+*`r print(a)`*
 
+```{r, fig.align = 'center', fig.cap = 'Figure 4. Population Growth'}
+library(ggplot2)
+library(dplyr)
+
+thismap = map_data("world")
+thismap <- mutate(thismap, fill = ifelse(region %in% c(params$country), "red", "white"))
+
+ggplot(data = thismap, aes(long, lat, fill = fill, group=group))+ 
+  geom_polygon(colour="darkgray") + 
+  scale_fill_identity()
+        
+```
+Information about selected country:
+
+```{r}
+library(WikipediR)
+library(rvest)
+wp_content <- page_content("en","wikipedia", page_name = params$country)
+a= read_html(wp_content$parse$text$`*`) %>% html_node('body div') %>% html_text()
+a =gsub('\n', '', a)
+a = a %>% as.character()
+```
+
+`r substr(a, 1, 100)`
+------------------------------------------------------------------------------------
+Source: ["wikipedia.org"](https://www.wikipedia.org/)
 
